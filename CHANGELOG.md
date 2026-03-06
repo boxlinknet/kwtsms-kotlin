@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-03-06
+
+### Added
+- README badges (CI, CodeQL, JitPack, License, Java version)
+- Best Practices section in README (local validation, user-facing errors, OTP, coverage, balance)
+- Examples reference table in README
+- Android Google Play Integrity API guidance
+
+### Changed
+- Bumped CI actions: checkout v4→v6, gradle/actions v4→v5, upload-artifact v4→v7, codeql-action v3→v4
+- Merged Dependabot PR for actions/setup-java v4→v5
+
 ## [0.1.0] - 2026-03-06
 
 Initial release of the `kwtsms` Kotlin client library.
@@ -65,5 +77,6 @@ Initial release of the `kwtsms` Kotlin client library.
 - 4 example programs with companion documentation
 - CHANGELOG, CONTRIBUTING, LICENSE
 
-[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/boxlinknet/kwtsms-kotlin/releases/tag/v0.1.0

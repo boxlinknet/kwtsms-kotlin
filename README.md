@@ -1,5 +1,11 @@
 # kwtsms-kotlin
 
+[![Test](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/test.yml/badge.svg)](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/test.yml)
+[![CodeQL](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/codeql.yml/badge.svg)](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/codeql.yml)
+[![JitPack](https://jitpack.io/v/boxlinknet/kwtsms-kotlin.svg)](https://jitpack.io/#boxlinknet/kwtsms-kotlin)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java 8+](https://img.shields.io/badge/Java-8%2B-blue.svg)](https://adoptium.net/)
+
 Official Kotlin/JVM client for the [kwtSMS](https://www.kwtsms.com) SMS gateway API. Zero dependencies, thread-safe, works on Android and server-side JVM.
 
 ## About kwtSMS
@@ -38,7 +44,7 @@ In your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.0")
+    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.1")
 }
 ```
 
