@@ -118,6 +118,10 @@ config.fetchAndActivate().addOnCompleteListener {
 }
 ```
 
+**Bot protection for Android (Google Play Integrity API):**
+
+Android apps do NOT need CAPTCHA. Use Google Play Integrity API instead — it verifies app genuineness and device integrity, blocking scripts, bots, and modified binaries. Verify the integrity token on your backend server before allowing OTP sends. See [Play Integrity documentation](https://developer.android.com/google/play/integrity).
+
 ## Methods
 
 ### `verify()`
@@ -382,6 +386,81 @@ BEFORE GOING LIVE:
 [ ] Private Sender ID registered (not KWT-SMS)
 [ ] Transactional Sender ID for OTP (not promotional)
 ```
+
+## Best Practices
+
+### 1. Validate before calling the API
+
+The #1 cause of wasted API calls is sending invalid input and letting the API reject it. Validate locally first:
+
+```kotlin
+// BAD: sends everything to the API, wastes round-trips
+val result = sms.send(userPhone, userMessage)
+
+// GOOD: validate locally, only send clean input
+val (valid, error, normalized) = PhoneUtils.validatePhoneInput(userPhone)
+if (!valid) return mapOf("error" to error)
+
+val message = MessageUtils.cleanMessage(userMessage)
+if (message.isBlank()) return mapOf("error" to "Message is empty after cleaning.")
+
+val result = sms.send(normalized!!, message)
+```
+
+| Check | When | Why |
+|-------|------|-----|
+| Phone number format | Before `send()` | Reject emails, too-short numbers, non-numeric input locally |
+| Message not empty | Before `send()` | Don't waste an API call to get ERR009 |
+| Country prefix active | Before `send()` | Call `coverage()` once at startup, cache prefixes. Reject unsupported countries locally |
+| Balance sufficient | Before `send()` | Use `cachedBalance` from previous sends. If 0, show error immediately |
+| Sender ID valid | Before `send()` | Cache `senderIds()` result. Reject unknown senders locally |
+
+### 2. User-facing error messages
+
+Never expose raw API errors like "ERR006" to end users. Map them to friendly messages:
+
+| Situation | Raw error | Show to user |
+|-----------|----------|--------------|
+| Invalid phone | ERR006, ERR025 | "Please enter a valid phone number (e.g., +965 9876 5432)." |
+| Wrong credentials | ERR003 | "SMS service is temporarily unavailable. Please try again later." |
+| No balance | ERR010, ERR011 | "SMS service is temporarily unavailable. Please try again later." |
+| Country not supported | ERR026 | "SMS delivery to this country is not available." |
+| Rate limited | ERR028 | "Please wait a moment before requesting another code." |
+| Message rejected | ERR031, ERR032 | "Your message could not be sent. Please try again with different content." |
+| Network error | timeout | "Could not connect to SMS service. Check your internet connection." |
+| Queue full | ERR013 | "SMS service is busy. Please try again in a few minutes." |
+
+**Key principle:** User-recoverable errors (bad phone, rate limited) get helpful messages. System-level errors (auth, balance, network) get a generic message + admin alert.
+
+### 3. OTP requirements
+
+- Always include app name: `"Your OTP for APPNAME is: 123456"`
+- Resend timer: minimum 3-4 minutes (KNET standard is 4 minutes)
+- OTP expiry: 3-5 minutes
+- Always generate a new code on resend, invalidate previous codes
+- Use **Transactional** Sender ID (promotional is filtered by DND)
+- Send to one number per request (never batch OTP sends)
+
+### 4. Country coverage pre-check
+
+Call `coverage()` once at startup and cache the active prefixes. Before every send, check the number's country prefix against the cache. If the country is not active, return an error immediately without hitting the API.
+
+### 5. Balance monitoring
+
+- Save `balanceAfter` from every send response to your database/cache
+- Set up low-balance alerts (e.g., below 50 credits)
+- Before bulk sends, estimate cost (recipients x pages) and warn if insufficient
+
+## Examples
+
+See the [`examples/`](examples/) directory for complete runnable examples:
+
+| Example | Description |
+|---------|-------------|
+| [01-basic-usage](examples/01-basic-usage/) | Verify credentials, send a message, check status |
+| [02-otp-flow](examples/02-otp-flow/) | OTP generation, sending, and verification |
+| [03-bulk-sms](examples/03-bulk-sms/) | Sending to large number lists with auto-batching |
+| [04-error-handling](examples/04-error-handling/) | Handling all error codes and edge cases |
 
 ## FAQ
 
