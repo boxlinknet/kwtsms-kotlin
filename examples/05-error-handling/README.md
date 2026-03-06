@@ -1,4 +1,4 @@
-# 04: Error Handling
+# 05: Error Handling
 
 ## What this example demonstrates
 

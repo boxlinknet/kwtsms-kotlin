@@ -1,4 +1,4 @@
-# kwtsms-kotlin
+# kwtSMS Kotlin Client
 
 [![Test](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/test.yml/badge.svg)](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/test.yml)
 [![CodeQL](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/codeql.yml/badge.svg)](https://github.com/boxlinknet/kwtsms-kotlin/actions/workflows/codeql.yml)
@@ -44,7 +44,7 @@ In your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.1")
+    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.2")
 }
 ```
 
@@ -466,7 +466,9 @@ See the [`examples/`](examples/) directory for complete runnable examples:
 | [01-basic-usage](examples/01-basic-usage/) | Verify credentials, send a message, check status |
 | [02-otp-flow](examples/02-otp-flow/) | OTP generation, sending, and verification |
 | [03-bulk-sms](examples/03-bulk-sms/) | Sending to large number lists with auto-batching |
-| [04-error-handling](examples/04-error-handling/) | Handling all error codes and edge cases |
+| [04-ktor-endpoint](examples/04-ktor-endpoint/) | Web framework integration with input validation |
+| [05-error-handling](examples/05-error-handling/) | Handling all error codes and edge cases |
+| [06-otp-production](examples/06-otp-production/) | Production OTP with DB, rate limiting, CAPTCHA |
 
 ## FAQ
 

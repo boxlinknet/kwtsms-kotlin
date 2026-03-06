@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-03-06
+
+### Added
+- Example 04: Ktor web framework endpoint integration
+- Example 06: Production OTP with OtpService, rate limiting, secure hashing
+  - Database adapters: MemoryStore (dev), SqliteStore (production)
+  - CAPTCHA verifiers: TurnstileVerifier, HcaptchaVerifier
+  - Device attestation: PlayIntegrityVerifier (Android)
+
+### Changed
+- Renumbered examples: error handling moved from 04 to 05
+- README title changed to "kwtSMS Kotlin Client"
+
 ## [0.1.1] - 2026-03-06
 
 ### Added
@@ -77,6 +90,7 @@ Initial release of the `kwtsms` Kotlin client library.
 - 4 example programs with companion documentation
 - CHANGELOG, CONTRIBUTING, LICENSE
 
-[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/boxlinknet/kwtsms-kotlin/releases/tag/v0.1.0
