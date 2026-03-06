@@ -63,8 +63,8 @@ class IntegrationTest {
     fun `verify - wrong credentials`() {
         requireCredentials()
         val bad = KwtSMS(
-            username = "wrong_user_12345",
-            password = "wrong_pass_12345",
+            username = "kotlin_invalid_user",
+            password = "kotlin_invalid_pass",
             testMode = true,
             logFile = ""
         )
@@ -269,7 +269,7 @@ class IntegrationTest {
     @Order(50)
     fun `status - fake message ID returns error`() {
         requireCredentials()
-        val result = sms.status("fake_msg_id_12345")
+        val result = sms.status("kotlin_fake_msg_id_12345")
         assertEquals("ERROR", result.result)
     }
 
@@ -281,7 +281,7 @@ class IntegrationTest {
     @Order(51)
     fun `deliveryReport - fake message ID returns error`() {
         requireCredentials()
-        val result = sms.deliveryReport("fake_msg_id_12345")
+        val result = sms.deliveryReport("kotlin_fake_msg_id_12345")
         assertEquals("ERROR", result.result)
     }
 

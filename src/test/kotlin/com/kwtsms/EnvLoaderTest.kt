@@ -86,16 +86,16 @@ class EnvLoaderTest {
     fun `loadEnvFile - handles kwtsms variables`() {
         withTempEnv(
             """
-            KWTSMS_USERNAME=myuser
-            KWTSMS_PASSWORD=mypass
+            KWTSMS_USERNAME=kotlin_testuser
+            KWTSMS_PASSWORD=kotlin_testpass
             KWTSMS_SENDER_ID=MY-APP  # my sender
             KWTSMS_TEST_MODE=1
             KWTSMS_LOG_FILE=kwtsms.log
             """.trimIndent()
         ) { path ->
             val vars = EnvLoader.loadEnvFile(path)
-            assertEquals("myuser", vars["KWTSMS_USERNAME"])
-            assertEquals("mypass", vars["KWTSMS_PASSWORD"])
+            assertEquals("kotlin_testuser", vars["KWTSMS_USERNAME"])
+            assertEquals("kotlin_testpass", vars["KWTSMS_PASSWORD"])
             assertEquals("MY-APP", vars["KWTSMS_SENDER_ID"])
             assertEquals("1", vars["KWTSMS_TEST_MODE"])
             assertEquals("kwtsms.log", vars["KWTSMS_LOG_FILE"])
