@@ -1,0 +1,36 @@
+# Credentials
+.env
+*.env
+
+# Logs (may contain phone numbers and message bodies)
+*.log
+
+# Claude Code
+.claude/
+CLAUDE.md
+
+# Internal docs
+docs/
+
+# Git worktrees
+.worktrees/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Gradle build output
+build/
+.gradle/
+
+# Compiled class files
+*.class
+
+# JAR files (except Gradle wrapper)
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Local Gradle properties (may contain signing credentials)
+local.properties
