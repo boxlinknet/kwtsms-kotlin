@@ -12,8 +12,8 @@ Sending a one-time password (OTP) via SMS with proper phone validation, secure c
 ## Environment setup
 
 ```ini
-KWTSMS_USERNAME=your_api_user
-KWTSMS_PASSWORD=your_api_pass
+KWTSMS_USERNAME=kotlin_username
+KWTSMS_PASSWORD=kotlin_password
 KWTSMS_SENDER_ID=YOUR-TRANSACTIONAL-SENDERID
 KWTSMS_TEST_MODE=1
 ```

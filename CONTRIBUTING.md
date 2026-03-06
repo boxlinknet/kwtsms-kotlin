@@ -50,7 +50,7 @@ cd kwtsms-kotlin
 ### Tier 3: Integration tests (requires credentials)
 
 ```bash
-KOTLIN_USERNAME=your_api_user KOTLIN_PASSWORD=your_api_pass ./gradlew test --tests "com.kwtsms.IntegrationTest"
+KWTSMS_USERNAME=kotlin_username KWTSMS_PASSWORD=kotlin_password ./gradlew test --tests "com.kwtsms.IntegrationTest"
 ```
 
 Integration tests use `testMode=true` (no credits consumed). They are skipped automatically if credentials are not set.

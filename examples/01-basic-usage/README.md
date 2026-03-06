@@ -14,8 +14,8 @@ Loading credentials from a `.env` file, verifying API access, listing sender IDs
 Create a `.env` file in your project root:
 
 ```ini
-KWTSMS_USERNAME=your_api_user
-KWTSMS_PASSWORD=your_api_pass
+KWTSMS_USERNAME=kotlin_username
+KWTSMS_PASSWORD=kotlin_password
 KWTSMS_SENDER_ID=YOUR-SENDERID
 KWTSMS_TEST_MODE=1
 ```

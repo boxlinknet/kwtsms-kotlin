@@ -12,8 +12,8 @@ Sending SMS to more than 200 numbers using `sendBulk()`, which automatically spl
 ## Environment setup
 
 ```ini
-KWTSMS_USERNAME=your_api_user
-KWTSMS_PASSWORD=your_api_pass
+KWTSMS_USERNAME=kotlin_username
+KWTSMS_PASSWORD=kotlin_password
 KWTSMS_SENDER_ID=YOUR-SENDERID
 KWTSMS_TEST_MODE=1
 ```

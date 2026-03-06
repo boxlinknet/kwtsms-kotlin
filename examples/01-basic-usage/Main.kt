@@ -4,8 +4,8 @@ import com.kwtsms.KwtSMS
  * Basic usage: verify credentials, check balance, send a single SMS.
  *
  * Before running, create a .env file:
- *   KWTSMS_USERNAME=your_api_user
- *   KWTSMS_PASSWORD=your_api_pass
+ *   KWTSMS_USERNAME=kotlin_username
+ *   KWTSMS_PASSWORD=kotlin_password
  *   KWTSMS_SENDER_ID=YOUR-SENDERID
  *   KWTSMS_TEST_MODE=1
  */

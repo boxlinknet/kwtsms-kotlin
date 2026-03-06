@@ -74,8 +74,8 @@ fun main() {
 Create a `.env` file in your project root:
 
 ```ini
-KWTSMS_USERNAME=your_api_user
-KWTSMS_PASSWORD=your_api_pass
+KWTSMS_USERNAME=kotlin_username
+KWTSMS_PASSWORD=kotlin_password
 KWTSMS_SENDER_ID=YOUR-SENDERID
 KWTSMS_TEST_MODE=1
 KWTSMS_LOG_FILE=kwtsms.log
@@ -95,8 +95,8 @@ val sms = KwtSMS.fromEnv()  // reads KWTSMS_USERNAME, KWTSMS_PASSWORD, etc.
 
 ```kotlin
 val sms = KwtSMS(
-    username = "your_api_user",
-    password = "your_api_pass",
+    username = "kotlin_username",
+    password = "kotlin_password",
     senderId = "YOUR-SENDERID",
     testMode = true
 )

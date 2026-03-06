@@ -13,8 +13,8 @@ Demonstrates how to integrate kwtSMS into a Ktor web framework endpoint. A singl
 Create a `.env` file:
 
 ```ini
-KWTSMS_USERNAME=your_api_user
-KWTSMS_PASSWORD=your_api_pass
+KWTSMS_USERNAME=kotlin_username
+KWTSMS_PASSWORD=kotlin_password
 KWTSMS_SENDER_ID=YOUR-SENDERID
 KWTSMS_TEST_MODE=1
 ```

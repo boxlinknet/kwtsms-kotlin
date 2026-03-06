@@ -12,8 +12,8 @@ All error paths in the kwtSMS Kotlin client: local phone validation, message cle
 ## Environment setup
 
 ```ini
-KWTSMS_USERNAME=your_api_user
-KWTSMS_PASSWORD=your_api_pass
+KWTSMS_USERNAME=kotlin_username
+KWTSMS_PASSWORD=kotlin_password
 KWTSMS_TEST_MODE=1
 ```
 
