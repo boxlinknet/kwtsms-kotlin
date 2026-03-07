@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - name: Build JARs
+        run: ./gradlew build
+
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          # Extract the section between this version header and the next version header
+          NOTES=$(awk -v ver="$TAG" '
+            /^## \[/ {
+              if (found) exit
+              if (index($0, "[" ver "]")) { found=1; next }
+            }
+            found { print }
+          ' CHANGELOG.md)
+          # Write to file for gh release
+          echo "$NOTES" > /tmp/release-notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file /tmp/release-notes.md \
+            build/libs/*.jar
+
+      - name: Publish to GitHub Packages
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
