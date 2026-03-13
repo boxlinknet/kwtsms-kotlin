@@ -44,7 +44,7 @@ In your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.2")
+    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.3")
 }
 ```
 

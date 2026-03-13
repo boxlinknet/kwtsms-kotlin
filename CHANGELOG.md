@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-03-14
+
+### Added
+- Country-specific phone validation: 80+ countries with local length and mobile prefix rules
+- `PHONE_RULES` map with validation rules per country code
+- `COUNTRY_NAMES` map for human-readable error messages
+- `findCountryCode()` to match country code from normalized number (longest match)
+- `validatePhoneFormat()` to validate against country-specific format rules
+- Domestic trunk prefix stripping in `normalizePhone()` (e.g. 9660559... to 966559...)
+- GitGuardian secret scanning workflow
+- Dependabot commit message prefix (`deps`)
+
 ## [0.1.2] - 2026-03-06
 
 ### Added
@@ -90,7 +102,8 @@ Initial release of the `kwtsms` Kotlin client library.
 - 4 example programs with companion documentation
 - CHANGELOG, CONTRIBUTING, LICENSE
 
-[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/boxlinknet/kwtsms-kotlin/releases/tag/v0.1.0

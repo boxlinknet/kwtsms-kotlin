@@ -92,6 +92,113 @@ class PhoneUtilsTest {
         assertEquals("", PhoneUtils.normalizePhone("0000"))
     }
 
+    @Test
+    fun `normalizePhone - Saudi trunk prefix stripped (9660559)`() {
+        assertEquals("966559876543", PhoneUtils.normalizePhone("9660559876543"))
+    }
+
+    @Test
+    fun `normalizePhone - Saudi with plus and trunk prefix`() {
+        assertEquals("966559876543", PhoneUtils.normalizePhone("+9660559876543"))
+    }
+
+    @Test
+    fun `normalizePhone - Saudi with 00 and trunk prefix`() {
+        assertEquals("966559876543", PhoneUtils.normalizePhone("009660559876543"))
+    }
+
+    @Test
+    fun `normalizePhone - UAE trunk prefix stripped (97105x)`() {
+        assertEquals("971501234567", PhoneUtils.normalizePhone("9710501234567"))
+    }
+
+    @Test
+    fun `normalizePhone - Egypt trunk prefix stripped (2001x)`() {
+        // +20 0 1012345678 -> strip +, strip trunk 0 after cc 20
+        assertEquals("201012345678", PhoneUtils.normalizePhone("+2001012345678"))
+    }
+
+    @Test
+    fun `normalizePhone - Kuwait no trunk prefix (no change)`() {
+        assertEquals("96598765432", PhoneUtils.normalizePhone("96598765432"))
+    }
+
+    // ──────────────────────────────────────────────
+    // findCountryCode()
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `findCountryCode - 3-digit code (Kuwait 965)`() {
+        assertEquals("965", PhoneUtils.findCountryCode("96598765432"))
+    }
+
+    @Test
+    fun `findCountryCode - 2-digit code (Egypt 20)`() {
+        assertEquals("20", PhoneUtils.findCountryCode("201012345678"))
+    }
+
+    @Test
+    fun `findCountryCode - 1-digit code (USA 1)`() {
+        assertEquals("1", PhoneUtils.findCountryCode("12125551234"))
+    }
+
+    @Test
+    fun `findCountryCode - unknown code returns null`() {
+        assertNull(PhoneUtils.findCountryCode("99999999999"))
+    }
+
+    // ──────────────────────────────────────────────
+    // validatePhoneFormat()
+    // ──────────────────────────────────────────────
+
+    @Test
+    fun `validatePhoneFormat - valid Kuwait number`() {
+        val (valid, error) = PhoneUtils.validatePhoneFormat("96598765432")
+        assertTrue(valid)
+        assertNull(error)
+    }
+
+    @Test
+    fun `validatePhoneFormat - Kuwait wrong length`() {
+        val (valid, error) = PhoneUtils.validatePhoneFormat("9659876543") // 7 local digits, needs 8
+        assertFalse(valid)
+        assertTrue(error!!.contains("Kuwait"))
+        assertTrue(error.contains("8 digits"))
+    }
+
+    @Test
+    fun `validatePhoneFormat - Kuwait wrong mobile prefix`() {
+        val (valid, error) = PhoneUtils.validatePhoneFormat("96518765432") // starts with 1, invalid
+        assertFalse(valid)
+        assertTrue(error!!.contains("Kuwait"))
+        assertTrue(error.contains("must start with"))
+    }
+
+    @Test
+    fun `validatePhoneFormat - Saudi valid`() {
+        val (valid, _) = PhoneUtils.validatePhoneFormat("966559876543")
+        assertTrue(valid)
+    }
+
+    @Test
+    fun `validatePhoneFormat - Saudi wrong mobile prefix`() {
+        val (valid, error) = PhoneUtils.validatePhoneFormat("966159876543") // starts with 1
+        assertFalse(valid)
+        assertTrue(error!!.contains("Saudi Arabia"))
+    }
+
+    @Test
+    fun `validatePhoneFormat - unknown country passes through`() {
+        val (valid, _) = PhoneUtils.validatePhoneFormat("99912345678")
+        assertTrue(valid)
+    }
+
+    @Test
+    fun `validatePhoneFormat - Belgium length only (no mobile prefix check)`() {
+        val (valid, _) = PhoneUtils.validatePhoneFormat("32471234567") // 9 local digits
+        assertTrue(valid)
+    }
+
     // ──────────────────────────────────────────────
     // validatePhoneInput()
     // ──────────────────────────────────────────────
@@ -122,14 +229,16 @@ class PhoneUtilsTest {
 
     @Test
     fun `validatePhoneInput - minimum valid length (7 digits)`() {
-        val (valid, error, _) = PhoneUtils.validatePhoneInput("1234567")
+        // Use a number that doesn't match any country code (e.g. 999...)
+        val (valid, error, _) = PhoneUtils.validatePhoneInput("9991234")
         assertTrue(valid)
         assertNull(error)
     }
 
     @Test
     fun `validatePhoneInput - maximum valid length (15 digits)`() {
-        val (valid, error, _) = PhoneUtils.validatePhoneInput("123456789012345")
+        // Use a number that doesn't match any country code
+        val (valid, error, _) = PhoneUtils.validatePhoneInput("999123456789012")
         assertTrue(valid)
         assertNull(error)
     }
@@ -193,6 +302,28 @@ class PhoneUtilsTest {
         assertTrue(valid)
         assertNull(error)
         assertEquals("96598765432", normalized)
+    }
+
+    @Test
+    fun `validatePhoneInput - Saudi trunk prefix stripped and valid`() {
+        val (valid, error, normalized) = PhoneUtils.validatePhoneInput("+9660559876543")
+        assertTrue(valid)
+        assertNull(error)
+        assertEquals("966559876543", normalized)
+    }
+
+    @Test
+    fun `validatePhoneInput - Kuwait invalid mobile prefix rejected`() {
+        val (valid, error, _) = PhoneUtils.validatePhoneInput("96518765432")
+        assertFalse(valid)
+        assertTrue(error!!.contains("Kuwait"))
+    }
+
+    @Test
+    fun `validatePhoneInput - Saudi wrong length rejected`() {
+        val (valid, error, _) = PhoneUtils.validatePhoneInput("96655987") // too few local digits
+        assertFalse(valid)
+        assertTrue(error!!.contains("Saudi Arabia"))
     }
 
     // ──────────────────────────────────────────────
