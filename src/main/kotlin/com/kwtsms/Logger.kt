@@ -19,7 +19,14 @@ internal object Logger {
     fun maskCredentials(payload: Map<String, Any?>): Map<String, String> {
         val masked = mutableMapOf<String, String>()
         for ((key, value) in payload) {
-            masked[key] = if (key == "password") "***" else value?.toString() ?: ""
+            masked[key] = when (key) {
+                "password" -> "***"
+                "username" -> {
+                    val v = value?.toString() ?: ""
+                    if (v.length > 2) v.substring(0, 2) + "***" else "***"
+                }
+                else -> value?.toString() ?: ""
+            }
         }
         return masked
     }

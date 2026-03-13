@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-03-14
+
+### Added
+- Integration tests in CI on release tags (using KOTLIN_USERNAME/KOTLIN_PASSWORD secrets)
+- BulkSendResult now includes `unixTimestamp` and `action` fields
+- Balance caching, country validation utilities, and trunk prefix normalization documented in README
+- `docs/security.md` with full security audit findings and known limitations
+
+### Security
+- Fix JSON injection in example TurnstileVerifier and PlayIntegrityVerifier (proper escaping)
+- Mask username in logs (first 2 chars + `***`), not just password
+- Override `toString()` on KwtSMS to prevent credential exposure
+- Limit HTTP response body reads to 1 MB (prevent memory exhaustion)
+- Disable HTTP redirects to prevent HTTPS-to-HTTP downgrade
+- Add JSON parser recursion depth limit (max 50 levels)
+- Fix SqliteStore prepared statement resource leaks (use `.use {}` blocks)
+- Add thread safety to SqliteStore (`synchronized`) and MemoryStore (`ConcurrentHashMap`)
+- Handle InterruptedException in bulk send and retry loops
+
+### Fixed
+- send() with >200 numbers now preserves `unixTimestamp` and `action` from BulkSendResult
+- Ktor example: remove unnecessary force-unwrap (`!!`) on normalized phone
+- README: error code count corrected from 33 to 29
+
 ## [0.1.3] - 2026-03-14
 
 ### Added
@@ -102,7 +126,8 @@ Initial release of the `kwtsms` Kotlin client library.
 - 4 example programs with companion documentation
 - CHANGELOG, CONTRIBUTING, LICENSE
 
-[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/boxlinknet/kwtsms-kotlin/compare/v0.1.0...v0.1.1

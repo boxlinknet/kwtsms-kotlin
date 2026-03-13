@@ -28,7 +28,11 @@ class TurnstileVerifier(private val secretKey: String) : CaptchaVerifier {
             conn.readTimeout = 5000
             conn.doOutput = true
 
-            val body = """{"secret":"$secretKey","response":"$token","remoteip":"$ip"}"""
+            val body = buildJsonBody(
+                "secret" to secretKey,
+                "response" to token,
+                "remoteip" to ip
+            )
             OutputStreamWriter(conn.outputStream, Charsets.UTF_8).use { it.write(body) }
 
             if (conn.responseCode != 200) return false
@@ -40,5 +44,25 @@ class TurnstileVerifier(private val secretKey: String) : CaptchaVerifier {
             // Fail closed: any error = verification failed
             false
         }
+    }
+
+    private fun escapeJsonValue(s: String): String {
+        val sb = StringBuilder(s.length)
+        for (ch in s) {
+            when (ch) {
+                '"' -> sb.append("\\\"")
+                '\\' -> sb.append("\\\\")
+                '\n' -> sb.append("\\n")
+                '\r' -> sb.append("\\r")
+                '\t' -> sb.append("\\t")
+                else -> if (ch.code < 0x20) sb.append("\\u${ch.code.toString(16).padStart(4, '0')}") else sb.append(ch)
+            }
+        }
+        return sb.toString()
+    }
+
+    private fun buildJsonBody(vararg pairs: Pair<String, String>): String {
+        val entries = pairs.joinToString(",") { (k, v) -> "\"${escapeJsonValue(k)}\":\"${escapeJsonValue(v)}\"" }
+        return "{$entries}"
     }
 }

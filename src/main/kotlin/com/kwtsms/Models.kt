@@ -52,11 +52,13 @@ data class BulkSendResult(
     val numbers: Int = 0,
     val pointsCharged: Int = 0,
     val balanceAfter: Double? = null,
+    val unixTimestamp: Long? = null,
     val msgIds: List<String> = emptyList(),
     val errors: List<BatchError> = emptyList(),
     val invalid: List<InvalidEntry> = emptyList(),
     val code: String? = null,
-    val description: String? = null
+    val description: String? = null,
+    val action: String? = null
 )
 
 /**

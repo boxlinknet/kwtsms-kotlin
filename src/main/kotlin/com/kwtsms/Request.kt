@@ -91,13 +91,21 @@ internal object JsonUtils {
     @Suppress("TooManyFunctions")
     private class JsonParser(private val json: String) {
         private var pos = 0
+        private var depth = 0
+        private val maxDepth = 50
 
         fun parseValue(): Any? {
             skipWhitespace()
             if (pos >= json.length) return null
             return when (json[pos]) {
-                '{' -> parseObject()
-                '[' -> parseArray()
+                '{' -> {
+                    if (++depth > maxDepth) throw ApiException("JSON nesting too deep (max $maxDepth)")
+                    parseObject().also { depth-- }
+                }
+                '[' -> {
+                    if (++depth > maxDepth) throw ApiException("JSON nesting too deep (max $maxDepth)")
+                    parseArray().also { depth-- }
+                }
                 '"' -> parseString()
                 't', 'f' -> parseBoolean()
                 'n' -> parseNull()
@@ -249,6 +257,7 @@ internal object ApiRequest {
 
     private const val BASE_URL = "https://www.kwtsms.com/API"
     private const val TIMEOUT_MS = 15_000
+    private const val MAX_RESPONSE_SIZE = 1_048_576 // 1 MB
 
     /**
      * Make a POST request to a kwtSMS API endpoint.
@@ -275,6 +284,7 @@ internal object ApiRequest {
             connection.setRequestProperty("Accept", "application/json")
             connection.connectTimeout = TIMEOUT_MS
             connection.readTimeout = TIMEOUT_MS
+            connection.instanceFollowRedirects = false
             connection.doOutput = true
 
             // Write request body
@@ -292,7 +302,15 @@ internal object ApiRequest {
 
             responseBody = if (stream != null) {
                 BufferedReader(InputStreamReader(stream, Charsets.UTF_8)).use { reader ->
-                    reader.readText()
+                    val sb = StringBuilder()
+                    val buf = CharArray(8192)
+                    var total = 0
+                    var n: Int
+                    while (reader.read(buf).also { n = it } != -1 && total < MAX_RESPONSE_SIZE) {
+                        sb.append(buf, 0, n)
+                        total += n
+                    }
+                    sb.toString()
                 }
             } else {
                 ""

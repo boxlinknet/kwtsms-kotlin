@@ -20,7 +20,7 @@ import io.ktor.server.routing.*
  * Dependencies (add to build.gradle.kts):
  *   implementation("io.ktor:ktor-server-netty:2.3.7")
  *   implementation("io.ktor:ktor-server-content-negotiation:2.3.7")
- *   implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.2")
+ *   implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.3")
  */
 fun main() {
     val sms = KwtSMS.fromEnv()
@@ -58,7 +58,7 @@ fun main() {
                 }
 
                 // Step 3: Send via kwtSMS
-                val result = sms.send(normalized!!, cleaned)
+                val result = sms.send(normalized, cleaned)
                 if (result.result == "OK") {
                     call.respond(HttpStatusCode.OK, mapOf(
                         "success" to true,

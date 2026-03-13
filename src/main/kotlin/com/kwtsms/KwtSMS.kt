@@ -27,6 +27,8 @@ class KwtSMS(
     var cachedPurchased: Double? = null
         private set
 
+    override fun toString(): String = "KwtSMS(senderId=$senderId, testMode=$testMode)"
+
     companion object {
         private const val MAX_BATCH_SIZE = 200
         private const val BATCH_DELAY_MS = 500L
@@ -196,8 +198,10 @@ class KwtSMS(
                 numbers = bulkResult.numbers,
                 pointsCharged = bulkResult.pointsCharged,
                 balanceAfter = bulkResult.balanceAfter,
+                unixTimestamp = bulkResult.unixTimestamp,
                 code = bulkResult.code,
                 description = bulkResult.description,
+                action = bulkResult.action,
                 invalid = bulkResult.invalid
             )
         }
@@ -310,14 +314,21 @@ class KwtSMS(
     ): BulkSendResult {
         val batches = phones.chunked(MAX_BATCH_SIZE)
         val msgIds = mutableListOf<String>()
-        val errors = mutableListOf<BatchError>()
+        val batchErrors = mutableListOf<BatchError>()
         var totalNumbers = 0
         var totalPoints = 0
         var lastBalance: Double? = null
+        var lastTimestamp: Long? = null
+        var lastAction: String? = null
 
         for ((index, batch) in batches.withIndex()) {
             if (index > 0) {
-                Thread.sleep(BATCH_DELAY_MS)
+                try {
+                    Thread.sleep(BATCH_DELAY_MS)
+                } catch (_: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                    break
+                }
             }
 
             val result = sendBatchWithRetry(batch, cleanedMessage, sender, index + 1)
@@ -326,23 +337,23 @@ class KwtSMS(
                 result.msgId?.let { msgIds.add(it) }
                 totalNumbers += result.numbers ?: 0
                 totalPoints += result.pointsCharged ?: 0
-                if (result.balanceAfter != null) {
-                    lastBalance = result.balanceAfter
-                }
+                if (result.balanceAfter != null) lastBalance = result.balanceAfter
+                if (result.unixTimestamp != null) lastTimestamp = result.unixTimestamp
             } else {
-                errors.add(
+                batchErrors.add(
                     BatchError(
                         batch = index + 1,
                         code = result.code ?: "UNKNOWN",
                         description = result.description ?: "Unknown error"
                     )
                 )
+                if (result.action != null) lastAction = result.action
             }
         }
 
         val overallResult = when {
-            errors.isEmpty() -> "OK"
-            errors.size == batches.size -> "ERROR"
+            batchErrors.isEmpty() -> "OK"
+            batchErrors.size == batches.size -> "ERROR"
             else -> "PARTIAL"
         }
 
@@ -353,9 +364,11 @@ class KwtSMS(
             numbers = totalNumbers,
             pointsCharged = totalPoints,
             balanceAfter = lastBalance,
+            unixTimestamp = lastTimestamp,
             msgIds = msgIds,
-            errors = errors,
-            invalid = invalidEntries
+            errors = batchErrors,
+            invalid = invalidEntries,
+            action = lastAction
         )
     }
 
@@ -376,7 +389,12 @@ class KwtSMS(
                 return result
             }
 
-            Thread.sleep(ERR013_RETRY_DELAYS[attempt])
+            try {
+                Thread.sleep(ERR013_RETRY_DELAYS[attempt])
+            } catch (_: InterruptedException) {
+                Thread.currentThread().interrupt()
+                return result
+            }
         }
 
         return lastResult ?: SendResult(

@@ -47,7 +47,7 @@ In your `build.gradle.kts`:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.3")
+    implementation("com.github.boxlinknet:kwtsms-kotlin:0.1.4")
 }
 ```
 
@@ -193,9 +193,14 @@ Send to >200 numbers with automatic batching.
 val result: BulkSendResult = sms.sendBulk(phoneList, "Bulk message")
 // result.result       -> "OK", "PARTIAL", or "ERROR"
 // result.batches      -> number of batches sent
+// result.numbers      -> total numbers accepted
+// result.pointsCharged -> total credits consumed
+// result.balanceAfter -> balance after last batch
+// result.unixTimestamp -> server timestamp from last batch (GMT+3)
 // result.msgIds       -> list of message IDs (one per batch)
-// result.errors       -> per-batch errors
+// result.errors       -> List<BatchError>(batch, code, description)
 // result.invalid      -> numbers that failed local validation
+// result.action       -> developer guidance for error (if applicable)
 ```
 
 ### `validate(phones)`
@@ -258,6 +263,7 @@ PhoneUtils.normalizePhone("+96598765432")      // "96598765432"
 PhoneUtils.normalizePhone("0096598765432")     // "96598765432"
 PhoneUtils.normalizePhone("965 9876 5432")     // "96598765432"
 PhoneUtils.normalizePhone("٩٦٥٩٨٧٦٥٤٣٢")    // "96598765432"
+PhoneUtils.normalizePhone("+9660559876543")    // "966559876543" (trunk prefix stripped)
 ```
 
 ### `PhoneUtils.validatePhoneInput(phone)`
@@ -279,6 +285,67 @@ MessageUtils.cleanMessage("Hello 😀 World")     // "Hello  World"
 MessageUtils.cleanMessage("<b>Bold</b>")         // "Bold"
 MessageUtils.cleanMessage("\uFEFFBOM text")      // "BOM text"
 MessageUtils.cleanMessage("OTP: ١٢٣٤")          // "OTP: 1234"
+```
+
+### `PhoneUtils.findCountryCode(normalized)`
+
+Match a country code from a normalized phone number. Tries 3-digit codes first, then 2-digit, then 1-digit (longest match wins).
+
+```kotlin
+PhoneUtils.findCountryCode("96598765432")   // "965" (Kuwait)
+PhoneUtils.findCountryCode("201012345678")  // "20" (Egypt)
+PhoneUtils.findCountryCode("12125551234")   // "1" (USA/Canada)
+PhoneUtils.findCountryCode("99999999999")   // null (unknown)
+```
+
+### `PhoneUtils.validatePhoneFormat(normalized)`
+
+Validate a normalized phone number against country-specific format rules (local length + mobile starting digits). Numbers with no matching country rules pass through.
+
+```kotlin
+PhoneUtils.validatePhoneFormat("96598765432")  // Pair(true, null)
+PhoneUtils.validatePhoneFormat("96518765432")  // Pair(false, "Invalid Kuwait mobile number: after +965 must start with 4, 5, 6, 9")
+PhoneUtils.validatePhoneFormat("96655987")     // Pair(false, "Invalid Saudi Arabia number: expected 9 digits after +966, got 5")
+```
+
+### `PhoneUtils.PHONE_RULES`
+
+80+ country-specific phone validation rules. Each entry maps a country code to valid local number lengths and mobile starting digits.
+
+```kotlin
+val kuwaitRule = PhoneUtils.PHONE_RULES["965"]
+// PhoneRule(localLengths=[8], mobileStartDigits=["4", "5", "6", "9"])
+
+val saudiRule = PhoneUtils.PHONE_RULES["966"]
+// PhoneRule(localLengths=[9], mobileStartDigits=["5"])
+```
+
+Countries not in the rules table pass through with generic E.164 validation (7-15 digits).
+
+### `PhoneUtils.COUNTRY_NAMES`
+
+Human-readable country names by country code, used in validation error messages.
+
+```kotlin
+PhoneUtils.COUNTRY_NAMES["965"]  // "Kuwait"
+PhoneUtils.COUNTRY_NAMES["966"]  // "Saudi Arabia"
+```
+
+## Balance Caching
+
+The client caches balance information to reduce unnecessary API calls:
+
+- `sms.cachedBalance`: updated after every `verify()` and successful `send()` call
+- `sms.cachedPurchased`: updated after `verify()` calls
+
+`balance()` returns the live balance on success. If the API call fails, it returns the cached value. Returns `null` if no cached value exists.
+
+```kotlin
+val result = sms.send("96598765432", "Hello!")
+println("Balance after send: ${result.balanceAfter}")  // from API response
+println("Cached balance: ${sms.cachedBalance}")        // same value, cached
+
+// No need to call balance() after send, the value is already available
 ```
 
 ## Input Sanitization
@@ -321,7 +388,7 @@ when (result.result) {
 | ERR025 | Invalid number format | Use digits-only international format |
 | ERR028 | Same number too fast | Wait 15 seconds between sends to same number |
 
-All 33 error codes are mapped. Access the full map via `API_ERRORS`:
+All 29 error codes are mapped. Access the full map via `API_ERRORS`:
 
 ```kotlin
 import com.kwtsms.API_ERRORS
@@ -341,9 +408,12 @@ for ((code, action) in API_ERRORS) {
 | `965 9876 5432` | `96598765432` | Yes |
 | `965-9876-5432` | `96598765432` | Yes |
 | `٩٦٥٩٨٧٦٥٤٣٢` | `96598765432` | Yes |
+| `+9660559876543` | `966559876543` | Yes (Saudi trunk prefix stripped) |
+| `9710501234567` | `971501234567` | Yes (UAE trunk prefix stripped) |
 | `user@example.com` | | No (email) |
 | `12345` | | No (too short) |
 | `abcdef` | | No (no digits) |
+| `96518765432` | | No (invalid Kuwait mobile prefix) |
 
 ## Test Mode
 
@@ -369,7 +439,9 @@ Sender ID is **case sensitive**: `Kuwait` is not the same as `KUWAIT`.
 
 ## What's Handled Automatically
 
-- Phone number normalization (Arabic digits, +/00 prefix, spaces, dashes)
+- Phone number normalization (Arabic digits, +/00 prefix, spaces, dashes, trunk prefix)
+- Country-specific phone validation (80+ countries, local length + mobile prefix)
+- Domestic trunk prefix stripping (e.g., 9660559... to 966559...)
 - Phone number deduplication before sending
 - Local phone validation before API calls (no wasted requests)
 - Message cleaning (emojis, HTML, invisible chars, Arabic digits)
