@@ -8,9 +8,14 @@
 # Claude Code
 .claude/
 CLAUDE.md
+napkin.md
 
 # Internal docs
 docs/
+
+# Misc
+*.zip
+Gemfile.lock
 
 # Git worktrees
 .worktrees/
